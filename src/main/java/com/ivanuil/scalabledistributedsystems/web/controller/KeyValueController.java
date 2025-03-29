@@ -1,7 +1,6 @@
 package com.ivanuil.scalabledistributedsystems.web.controller;
 
 import com.ivanuil.scalabledistributedsystems.service.KeyValueService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("/storage")
 public class KeyValueController {
 
-    @Autowired
     public KeyValueController(KeyValueService keyValueService) {
         this.keyValueService = keyValueService;
     }
