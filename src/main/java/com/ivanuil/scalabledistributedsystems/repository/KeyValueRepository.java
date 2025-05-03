@@ -4,27 +4,34 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class KeyValueRepository {
 
-    public KeyValueRepository(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    private final List<JdbcTemplate> jdbcTemplates;
+
+    public KeyValueRepository(List<JdbcTemplate> jdbcTemplates) {
+        this.jdbcTemplates = jdbcTemplates;
     }
 
-    private final JdbcTemplate jdbcTemplate;
+    private JdbcTemplate chooseShoulder(String key) {
+        return jdbcTemplates.get(key.hashCode() % jdbcTemplates.size());
+    }
 
     @PostConstruct
     public void init() {
-        jdbcTemplate.execute("""
-           CREATE TABLE IF NOT EXISTS key_value (
-                key VARCHAR PRIMARY KEY,
-                value VARCHAR NOT NULL
-           );
-           """);
+        jdbcTemplates
+                .forEach(jdbcTemplate -> jdbcTemplate.execute("""
+                   CREATE TABLE IF NOT EXISTS key_value (
+                   key VARCHAR PRIMARY KEY,
+                   value VARCHAR NOT NULL
+                   );
+                """));
     }
 
     public void put(String key, String value) {
-        jdbcTemplate.update("""
+        chooseShoulder(key).update("""
                 INSERT INTO key_value (
                 key, value) VALUES (
                 ?, ?)
@@ -33,7 +40,7 @@ public class KeyValueRepository {
     }
 
     public String get(String key) {
-        var resultSet =  jdbcTemplate.queryForRowSet("""
+        var resultSet = chooseShoulder(key).queryForRowSet("""
              SELECT value FROM key_value WHERE key = ?;
          """, key);
         if (resultSet.next())
