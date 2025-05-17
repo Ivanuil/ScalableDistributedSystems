@@ -1,17 +1,18 @@
 package com.ivanuil.scalabledistributedsystems.repository;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class KeyValueRepository {
 
+    private final JdbcTemplate jdbcTemplate;
+
     public KeyValueRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
-    private final JdbcTemplate jdbcTemplate;
 
     @PostConstruct
     public void init() {
@@ -33,12 +34,13 @@ public class KeyValueRepository {
     }
 
     public String get(String key) {
-        var resultSet =  jdbcTemplate.queryForRowSet("""
-             SELECT value FROM key_value WHERE key = ?;
-         """, key);
-        if (resultSet.next())
-            return resultSet.getString("value");
-        return null;
+        try {
+            return jdbcTemplate.queryForObject("""
+                SELECT value FROM key_value WHERE key = ?;
+                """, String.class, key);
+        } catch (EmptyResultDataAccessException e) {
+            throw new IllegalStateException("No value found for key '" + key + "'");
+        }
     }
 
 }

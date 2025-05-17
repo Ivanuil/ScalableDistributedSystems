@@ -1,8 +1,6 @@
 package com.ivanuil.scalabledistributedsystems.service;
 
-import com.ivanuil.scalabledistributedsystems.exception.NotFoundException;
 import com.ivanuil.scalabledistributedsystems.repository.KeyValueRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +22,7 @@ public class KeyValuePersistentService implements KeyValueService {
     }
 
     public String get(String key) {
-        var res = keyValueRepository.get(key);
-        if (res == null)
-            throw new NotFoundException("No value found for key: " + key);
-        return res;
+        return keyValueRepository.get(key);
     }
 
 }
