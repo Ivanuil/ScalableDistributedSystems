@@ -1,6 +1,5 @@
 package com.ivanuil.scalabledistributedsystems.service;
 
-import com.ivanuil.scalabledistributedsystems.exception.NotFoundException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +22,7 @@ public class KeyValueInMemoryService implements KeyValueService {
     public String get(String key) {
         var res = map.get(key);
         if (res == null)
-            throw new NotFoundException("No value found for key: " + key);
+            throw new IllegalStateException("No value found for key: " + key);
         return res;
     }
 
